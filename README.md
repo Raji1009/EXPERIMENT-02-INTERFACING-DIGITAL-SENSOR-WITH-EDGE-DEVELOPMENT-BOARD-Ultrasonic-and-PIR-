@@ -143,23 +143,70 @@ Experiment 2A
 Experiment 2B
 ## PROGRAM (Python)
 ```
+import RPi.GPIO as GPIO
+import time
+import requests
 
+WRITE_API_KEY = "YFJ3LG0EQNQL1V17"
+URL = "https://api.thingspeak.com/update"
 
- 
+PIR_PIN = 24
 
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(PIR_PIN, GPIO.IN)
 
+print("PIR Monitoring Started...")
+time.sleep(2)
 
- 
+last_state = -1   # store previous state
+
+def update_thingspeak(state):
+    data = {
+        "api_key": WRITE_API_KEY,
+        "field1": state
+    }
+    try:
+        requests.get(URL, params=data)
+        print("Uploaded to ThingSpeak:", state)
+    except:
+        print("Upload Failed")
+
+while True:
+    motion = GPIO.input(PIR_PIN)
+
+    if motion != last_state:   # send only if changed
+        if motion == 1:
+            print("Motion Detected")
+            update_thingspeak(1)
+        else:
+            print("No Motion")
+            update_thingspeak(0)
+
+        last_state = motion
+        time.sleep(15)  # ThingSpeak delay
+
+    time.sleep(1) 
 ````
 
 ### OUPUT  
-Experiment 2B
+## Experiment 2B
 
-# FIGURE -07 ADD TITILE HERE 
+# FIGURE -07 Kit Diagram
+<img width="720" height="1280" alt="image" src="https://github.com/user-attachments/assets/0e58afbf-b02e-44de-94a7-a456e67aaf4d" />
 
-#  FIGURE -08 ADD TITILE HERE 
 
-# FIGURE -09 ADD TITLE HERE 
+#  FIGURE -08 Console Diagram
+<img width="682" height="587" alt="image" src="https://github.com/user-attachments/assets/271a3d23-e507-4506-a2d2-001d8a9f3276" />
+
+<img width="1882" height="872" alt="image" src="https://github.com/user-attachments/assets/ead95a04-8ffc-40b5-8ac0-273678441f90" />
+
+
+# FIGURE -09 ThingSpeak Output
+### DETECTED
+<img width="1919" height="1012" alt="image" src="https://github.com/user-attachments/assets/7229021f-9966-4db4-8121-93ae030033b7" />
+
+### Not DETECTED
+<img width="1919" height="985" alt="image" src="https://github.com/user-attachments/assets/b8efccc0-c302-41b0-bbb4-200dd6d9a28a" />
 
  
 ## RESULTS

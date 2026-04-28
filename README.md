@@ -1,8 +1,8 @@
-# EXPERIMENT-02-INTERFACTING-DIGITAL-SENSOR-WITH-EDGE-DEVELOPMENT-BOARD-ULTRASONIC-AND-PIR-SENSOR-(RASPBERRYPI-PI4)
-### NAME 
-### DEPARTMENT 
-### ROLL NO 
-### DATE OF EXPERIMENT 
+<img width="1895" height="853" alt="image" src="https://github.com/user-attachments/assets/972ae5e3-f32f-429e-b3ce-3ae824bdf599" /># EXPERIMENT-02-INTERFACTING-DIGITAL-SENSOR-WITH-EDGE-DEVELOPMENT-BOARD-ULTRASONIC-AND-PIR-SENSOR-(RASPBERRYPI-PI4)
+### NAME  : Rajalakshmi R
+### DEPARTMENT : CSE(IOT)
+### ROLL NO  : 212223110037
+### DATE OF EXPERIMENT :28.04.2026
 
 ### AIM
 To interface a digital sensor (Ultrasonic and PIR) with the Raspberry Pi 4 and control it using Python.
@@ -62,23 +62,83 @@ Connect the PIR sensor OUT to any one GPIO.
 Experiment 2A
 ## PROGRAM (Python)
 ```
+import RPi.GPIO as GPIO
+import time
+import requests
 
+# ThingSpeak settings
+API_KEY = "YFJ3LG0EQNQL1V17"
+THINGSPEAK_URL = "https://api.thingspeak.com/update"
 
- 
+# GPIO pins
+TRIG = 18
+ECHO = 23
 
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(TRIG, GPIO.OUT)
+GPIO.setup(ECHO, GPIO.IN)
 
+def get_distance():
+    GPIO.output(TRIG, False)
+    time.sleep(0.5)
 
- 
+    # Trigger pulse
+    GPIO.output(TRIG, True)
+    time.sleep(0.00001)
+    GPIO.output(TRIG, False)
+
+    while GPIO.input(ECHO) == 0:
+        pulse_start = time.time()
+
+    while GPIO.input(ECHO) == 1:
+        pulse_end = time.time()
+
+    pulse_duration = pulse_end - pulse_start
+    distance = pulse_duration * 17150
+    distance = round(distance, 2)
+
+    return distance
+
+try:
+    while True:
+        distance = get_distance()
+
+        # Console output
+        print("distance =", distance, "cm")
+
+        # Text message for ThingSpeak
+        status_text = f"distance = {distance} cm"
+
+        # Send data to ThingSpeak
+        payload = {
+            "api_key": API_KEY,
+            "field2": distance,   # numeric for chart
+            "status": status_text # text message
+        }
+
+        response = requests.get(THINGSPEAK_URL, params=payload)
+        print("Sent to ThingSpeak")
+
+        time.sleep(15)
+
+except KeyboardInterrupt:
+    GPIO.cleanup()
 ````
 
 ### OUPUT  
 Experiment 2A
 
-# FIGURE -04 ADD TITILE HERE 
+# FIGURE -04 Kit image
+<img width="720" height="1280" alt="image" src="https://github.com/user-attachments/assets/9b2b63cd-1ebb-4123-915c-eb80833c6489" />
 
-#  FIGURE -05 ADD TITILE HERE 
 
-# FIGURE -06 ADD TITLE HERE 
+#  FIGURE -05 Console Output
+<img width="647" height="447" alt="image" src="https://github.com/user-attachments/assets/9f9f1d65-2691-4b15-afd8-d005925e84b0" />
+
+
+# FIGURE -06 ThingSpeak OutPut
+<img width="1895" height="891" alt="image" src="https://github.com/user-attachments/assets/ac56e3e2-ec79-4486-aab5-69a01f085d9a" />
+
 
 Experiment 2B
 ## PROGRAM (Python)
